@@ -1,5 +1,8 @@
 (function() {
 
+    /**
+     * Polyfill
+     */
     var requestAnimationFrame =
             window.requestAnimationFrame ||
             window.mozRequestAnimationFrame ||
@@ -18,10 +21,10 @@
         this.values = (values.length === 3) ? values : [0,0,0];
 
         /**
-         * Return colour as "rgba(...)" format string
+         * Return colour as "rgb(...)" format string
          */
-        this.getRGBA = function() {
-            return 'rgba(' + this.values.map(Math.round).join(',') + ',1)';
+        this.getRGB = function() {
+            return 'rgb(' + this.values.map(Math.round).join(',') + ')';
         }.bind(this);
 
         /**
@@ -35,12 +38,19 @@
     };
 
     /**
+     * Colour constants
+     */
+    var BLACK = new Colour([0, 0, 0]),
+        WHITE = new Colour([255, 255, 255]);
+
+    /**
      * Application class
      */
-    var ColoursApp = function(id, colour, opts) {
+    var ColoursApp = function(id, opts) {
         this.canvas = document.getElementById(id);
         this.ctx = this.canvas.getContext('2d');
-        this.colour = colour;
+        this.mode = opts.mode || 'colour';
+        this.colour = opts.colour || BLACK;
         this.rows = opts.rows || 10;
         this.cols = opts.cols || 10;
         this.margin = opts.margin || 4;
@@ -62,6 +72,24 @@
         }.bind(this)();
 
         /**
+         * Cell style handlers
+         */
+        this.getStyle = {
+            // Gradient with random from/to colours mixed with the base colour
+            colour: function(x, y) {
+                var style = this.ctx.createLinearGradient(x, y, x + this.cellX, y + this.cellY);
+                style.addColorStop(0, this.colour.getRandom().getRGB());
+                style.addColorStop(1, this.colour.getRandom().getRGB());
+                return style;
+            }.bind(this),
+
+            // Random colour on/off
+            monochrome: function() {
+                return (Math.random() > 0.5) ? this.colour.getRGB() : WHITE.getRGB();
+            }.bind(this),
+        };
+
+        /**
          * Main loop
          */
         this.run = function() {
@@ -78,14 +106,7 @@
             // Draw cells
             for (var x = this.margin; (x + this.cellX) < this.canvas.width; x += this.cellX + this.margin) {
                 for (var y = this.margin; (y + this.cellY) < this.canvas.height; y += this.cellY + this.margin) {
-
-                    // Get cell gradient
-                    var gradient = this.ctx.createLinearGradient(x, y, x + this.cellX, y + this.cellY);
-                    gradient.addColorStop(0, this.colour.getRandom().getRGBA());
-                    gradient.addColorStop(1, this.colour.getRandom().getRGBA());
-
-                    // Fill cell
-                    this.ctx.fillStyle = gradient;
+                    this.ctx.fillStyle = this.getStyle[this.mode](x, y);
                     this.ctx.fillRect(x, y, this.cellX, this.cellY);
                 }
             }
@@ -95,6 +116,10 @@
     /**
      * Start app
      */
-    new ColoursApp('page', new Colour([255, 168, 145]), {rows: 40, cols: 20}).run();
+    new ColoursApp('page', {
+        colour: new Colour([255, 168, 145]),
+        rows: 40,
+        cols: 20,
+    }).run();
 
 })();
