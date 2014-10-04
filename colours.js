@@ -1,4 +1,4 @@
-(function() {
+var Colours = (function() {
 
     /**
      * Polyfill
@@ -46,15 +46,26 @@
     /**
      * Application class
      */
-    var ColoursApp = function(id, opts) {
-        this.canvas = document.getElementById(id);
-        this.ctx = this.canvas.getContext('2d');
+    var App = function(opts) {
         this.mode = opts.mode || 'colour';
         this.colour = opts.colour || BLACK;
         this.rows = opts.rows || 10;
         this.cols = opts.cols || 10;
         this.margin = opts.margin || 4;
+        this.gutter = opts.gutter || 20;
         this.refresh = opts.refresh || 200;
+
+        this.canvas = document.body.appendChild(document.createElement('canvas'));
+        this.ctx = this.canvas.getContext('2d');
+
+        var toolbar = document.body.appendChild(document.createElement('footer'));
+        var addButton = function(mode, label) {
+            var btn = toolbar.appendChild(document.createElement('button'));
+            btn.appendChild(document.createTextNode(label));
+            btn.onclick = function() { this.mode = mode; console.log(mode); }.bind(this);
+        }.bind(this);
+        addButton('colour', 'Colour');
+        addButton('monochrome', 'Monochrome');
 
         /**
          * Resize handler
@@ -68,7 +79,7 @@
 
             // Calcuate cell size
             this.cellX = ((this.canvas.width - (this.margin * 2)) / this.cols) - this.margin,
-            this.cellY = ((this.canvas.height - (this.margin * 2)) / this.rows) - this.margin;
+            this.cellY = ((this.canvas.height - (this.margin * 2) - this.gutter) / this.rows) - this.margin;
         }.bind(this)();
 
         /**
@@ -83,7 +94,7 @@
                 return style;
             }.bind(this),
 
-            // Random colour on/off
+            // Random on or off
             monochrome: function() {
                 return (Math.random() > 0.5) ? this.colour.getRGB() : WHITE.getRGB();
             }.bind(this),
@@ -104,22 +115,15 @@
             this.time = now;
 
             // Draw cells
-            for (var x = this.margin; (x + this.cellX) < this.canvas.width; x += this.cellX + this.margin) {
-                for (var y = this.margin; (y + this.cellY) < this.canvas.height; y += this.cellY + this.margin) {
+            for (var y = this.margin; (y + this.cellY + this.gutter) < this.canvas.height; y += this.cellY + this.margin) {
+                for (var x = this.margin; (x + this.cellX) < this.canvas.width; x += this.cellX + this.margin) {
                     this.ctx.fillStyle = this.getStyle[this.mode](x, y);
                     this.ctx.fillRect(x, y, this.cellX, this.cellY);
                 }
             }
         }.bind(this);
-    };
+    }
 
-    /**
-     * Start app
-     */
-    new ColoursApp('page', {
-        colour: new Colour([255, 168, 145]),
-        rows: 40,
-        cols: 20,
-    }).run();
+    return {Colour: Colour, App: App};
 
 })();
