@@ -97,8 +97,8 @@ var Colours = (function() {
         this.canvas.height = this.canvas.clientHeight;
 
         // Calcuate cell size
-        this.cellX = ((this.canvas.width - (this.margin * 2)) / this.cols) - this.margin;
-        this.cellY = ((this.canvas.height - (this.margin * 2) - this.gutter) / this.rows) - this.margin;
+        this.cellX = Math.round(((this.canvas.width - (this.margin * 2)) / this.cols) - this.margin);
+        this.cellY = Math.round(((this.canvas.height - (this.margin * 2) - this.gutter) / this.rows) - this.margin);
     };
 
     /**
