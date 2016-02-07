@@ -50,7 +50,7 @@ var Colours = (function() {
      */
     var addButton = function(parent, label, obj, prop, value) {
         var btn = createElement('button', parent);
-        btn.appendChild(document.createTextNode(label));
+        btn.textContent = label;
         btn.onclick = function() { obj[prop] = value; };
     };
 
@@ -58,10 +58,11 @@ var Colours = (function() {
      * Application class
      */
     var App = function(opts) {
-        this.mode = opts.mode || 'gradient';
+        // General app config
         this.colour = opts.colour || BLACK;
         this.rows = opts.rows || 10;
         this.cols = opts.cols || 10;
+        this.mode = opts.mode || 'gradient';
         this.margin = opts.margin || 4;
         this.gutter = opts.gutter || 20;
         this.refresh = opts.refresh || 200;
@@ -71,10 +72,12 @@ var Colours = (function() {
         this.canvas = createElement('canvas');
         this.ctx = this.canvas.getContext('2d');
 
-        // Create toolbar
-        var toolbar = createElement('footer');
+        // Create footer
+        var footer = createElement('footer');
+
+        // Add toolbar buttons to footer
         for (var mode in this.getStyle) {
-            addButton(toolbar, mode, this, 'mode', mode);
+            addButton(footer, mode, this, 'mode', mode);
         }
 
         // Set canvas size and update on window resize
