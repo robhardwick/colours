@@ -68,6 +68,12 @@ var Colours = (function() {
         this.refresh = opts.refresh || 200;
         this.frame = 0;
 
+        // I'm so vain (… ask Carly Simon)
+        this.attribution = {
+            text: '© Rob Hardwick',
+            url: '//github.com/robhardwick'
+        };
+
         // Create canvas
         this.canvas = createElement('canvas');
         this.ctx = this.canvas.getContext('2d');
@@ -79,6 +85,12 @@ var Colours = (function() {
         for (var mode in this.getStyle) {
             addButton(footer, mode, this, 'mode', mode);
         }
+
+        // Add attribution
+        var attrib = createElement('a', footer);
+        attrib.setAttribute('href', this.attribution.url);
+        attrib.setAttribute('rel', 'attribution');
+        attrib.textContent = this.attribution.text;
 
         // Set canvas size and update on window resize
         this.resize();
